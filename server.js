@@ -64,5 +64,23 @@ server.get('/', (req, res) => {
   res.render('index.ejs', {banners: res.banners, articles: res.articles});
 });
 
+server.get('/article', (req, res) => {
+  if (req.query.id) {
+    db.query(`SELECT * FROM article_table WHERE ID=${req.query.id}`, (err, data) => {
+      if (err) {
+        res.status(500).send('database error').end();
+      } else {
+        if (data.length == 0) {
+          res.status(404).send('页面不存在').end();
+        } else {
+          res.render('conText.ejs', {article_data: data[0]});
+        }
+      }
+    });
+  } else {
+    res.status(404).send('页面不存在').end();
+  }
+});
+
 //6.static 数据
 server.use(static('./www'));
