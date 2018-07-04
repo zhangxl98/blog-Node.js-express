@@ -6,6 +6,7 @@ const bodyParser=require('body-parser');
 const multer=require('multer');
 const consolidate=require('consolidate');
 const mysql=require('mysql');
+const common = require('./libs/common');
 
 //连接池
 const db=mysql.createPool({host: 'localhost', user: 'root', password: '123456', database: 'blog'});
@@ -73,7 +74,9 @@ server.get('/article', (req, res) => {
         if (data.length == 0) {
           res.status(404).send('页面不存在').end();
         } else {
-          res.render('conText.ejs', {article_data: data[0]});
+          let articleData = data[0];
+          articleData.sDate = common.timedate(articleData.post_time);
+          res.render('conText.ejs', {article_data: articleData});
         }
       }
     });
