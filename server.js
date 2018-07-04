@@ -76,6 +76,7 @@ server.get('/article', (req, res) => {
         } else {
           let articleData = data[0];
           articleData.sDate = common.timedate(articleData.post_time);
+          articleData.content = articleData.content.replace(/^/gm, '<p>').replace(/$/gm, '</p>');
           res.render('conText.ejs', {article_data: articleData});
         }
       }
