@@ -7,6 +7,9 @@ const multer=require('multer');
 const consolidate=require('consolidate');
 const mysql=require('mysql');
 
+//连接池
+const db=mysql.createPool({host: 'localhost', user: 'root', password: '123456', database: 'blog'});
+
 let server = express();
 server.listen(8080);
 
@@ -36,7 +39,15 @@ server.engine('html', consolidate.ejs);
 
 //接收用户请求
 server.get('/', (req, res) => {
-  res.render('index.ejs')
+  db.query("SELECT * FROM banner_table", (err, data) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send('database error').end();
+    } else {
+      console.log(data);
+      res.render('index.ejs', {banners: data});
+    }
+  });
 });
 
 //5.static 数据
