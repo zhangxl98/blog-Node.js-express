@@ -18,7 +18,7 @@ server.use(cookieParser('qwduiadsdhjahdsuuasidhuaasuidh'));
 
 //2.使用session
 let arr = [];
-for (var i = 0; i < 1000000; i++) {
+for (let i = 0; i < 1000000; i++) {
   arr.push('keys_' + Math.random());
 }
 server.use(cookieSession({name: 'sess_id', keys: arr, maxAge: 20*3600*1000}));
@@ -37,18 +37,32 @@ server.set('views', './template');
 //哪种模板引擎
 server.engine('html', consolidate.ejs);
 
-//接收用户请求
-server.get('/', (req, res) => {
+//5.接收用户请求
+server.get('/', (req, res, next) => {
+  //查询 banner 数据
   db.query("SELECT * FROM banner_table", (err, data) => {
     if (err) {
-      console.log(err);
       res.status(500).send('database error').end();
     } else {
-      console.log(data);
-      res.render('index.ejs', {banners: data});
+      res.banners = data;
+      next();
     }
   });
 });
+server.get('/', (req, res, next) => {
+  //查询文章列表
+  db.query('SELECT ID,title,summary FROM article_table', (err, data) => {
+    if (err) {
+      res.status(500).send('database error').end();
+    } else {
+      res.articles = data;
+      next();
+    }
+  });
+});
+server.get('/', (req, res) => {
+  res.render('index.ejs', {banners: res.banners, articles: res.articles});
+});
 
-//5.static 数据
+//6.static 数据
 server.use(static('./www'));
