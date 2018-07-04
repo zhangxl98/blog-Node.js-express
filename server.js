@@ -67,20 +67,45 @@ server.get('/', (req, res) => {
 
 server.get('/article', (req, res) => {
   if (req.query.id) {
-    db.query(`SELECT * FROM article_table WHERE ID=${req.query.id}`, (err, data) => {
-      if (err) {
-        res.status(500).send('database error').end();
-      } else {
-        if (data.length == 0) {
-          res.status(404).send('页面不存在').end();
+    if (req.query.act == 'like') {
+      db.query(`UPDATE article_table SET n_like=n_like+1 WHERE ID=${req.query.id}`, (err, data) => {
+        if (err) {
+          res.status(500).send('database error').end();
         } else {
-          let articleData = data[0];
-          articleData.sDate = common.timedate(articleData.post_time);
-          articleData.content = articleData.content.replace(/^/gm, '<p>').replace(/$/gm, '</p>');
-          res.render('conText.ejs', {article_data: articleData});
+          //显示文章
+          db.query(`SELECT * FROM article_table WHERE ID=${req.query.id}`, (err, data) => {
+            if (err) {
+              res.status(500).send('database error').end();
+            } else {
+              if (data.length == 0) {
+                res.status(404).send('页面不存在').end();
+              } else {
+                let articleData = data[0];
+                articleData.sDate = common.timedate(articleData.post_time);
+                articleData.content = articleData.content.replace(/^/gm, '<p>').replace(/$/gm, '</p>');
+                res.render('conText.ejs', {article_data: articleData});
+              }
+            }
+          });
         }
-      }
-    });
+      });
+    } else {
+      //显示文章
+      db.query(`SELECT * FROM article_table WHERE ID=${req.query.id}`, (err, data) => {
+        if (err) {
+          res.status(500).send('database error').end();
+        } else {
+          if (data.length == 0) {
+            res.status(404).send('页面不存在').end();
+          } else {
+            let articleData = data[0];
+            articleData.sDate = common.timedate(articleData.post_time);
+            articleData.content = articleData.content.replace(/^/gm, '<p>').replace(/$/gm, '</p>');
+            res.render('conText.ejs', {article_data: articleData});
+          }
+        }
+      });
+    }
   } else {
     res.status(404).send('页面不存在').end();
   }
